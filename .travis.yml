@@ -1,0 +1,7 @@
+language: python
+python:
+  - "2.7"
+# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+####install: PLEASE CHANGE ME
+# command to run tests, e.g. python setup.py test
+script:  rm -rf local_backup/Sun_Oct_27_2013_GMT___Full   Dropbox/backups*/Sun_Oct_27_2013_GMT___Full ; python ./unit_test.py  -r backup_report.py 
