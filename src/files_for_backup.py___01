@@ -1,0 +1,122 @@
+
+
+
+config = {
+
+   #*****************************************************************************
+   #*****************************************************************************
+   # Starting point to locate all files and directories to be backed up
+   'base_directory' : '/home/david',
+   #*****************************************************************************
+   #*****************************************************************************
+
+
+
+
+   #*****************************************************************************
+   #*****************************************************************************
+   'enable_backups' : True, # Enter False to disable any and all backups from being made
+                            # This has has the highest priority of all in this application.
+                            # This is basically an ON/OFF switch for the entire application.
+   #*****************************************************************************
+   #*****************************************************************************
+
+
+
+
+   #*****************************************************************************
+   #*****************************************************************************
+   #   ********   Full backups have priority over incremental   ********
+   #   ********   UNCOMMENT ONE OF:                             ********
+   #   ********   Set value as appropriate.                     ********
+   #'full_backup_frequency' : { 'daily'     : ''      },  # daily
+   'full_backup_frequency' : { 'dow'       : 'Mon'   },  # day_of_week  ( Sun, Mon, Tue, Wed, Thu, Fri, Sat )
+   #'full_backup_frequency' : { 'biweekly'  : 'Sun_1' },  # day_of_BIweek ( Sun_1, Mon_1, Tue_1, Wed_1, Thu_1, Fri_1, Sat_1,    Sun_2, Mon_2, Tue_2, Wed_2, Thu_2, Fri_2, Sat_2 )
+   #'full_backup_frequency' : { 'dom'       : '1'     },  # day_of_month ( 1-28 or last )
+   #'full_backup_frequency' : { 'quarterly' : 'first' },  # first or last day of calendar quarter
+   #*****************************************************************************
+   #*****************************************************************************
+
+
+
+
+   #*****************************************************************************
+   #*****************************************************************************
+   #   ********   Enter the maximum number of incremental backups after a full backup                 ********
+   #   ********   Once the maximum is reached, a full backup is performed.                            ********
+   #   ********   If set to a non-zero value, this has priority of the incremental frequency below.   ********
+   'max_incrementals' : 5, # Enter 0 if there is no maximum
+   #*****************************************************************************
+   #*****************************************************************************
+
+
+
+
+   #*****************************************************************************
+   #*****************************************************************************
+   #   ********   UNCOMMENT ONE OF:           ********
+   #   ********   Set value as appropriate.   ********
+   #'incremental_frequency' : { 'none'     : ''      },  # No incremental backups
+   'incremental_frequency' : { 'daily'    : ''      },  # daily
+   #'incremental_frequency' : { 'dow'      : 'Mon'   },  # day_of_week  ( Sun, Mon, Tue, Wed, Thu, Fri, Sat )
+   #'full_backup_frequency' : { 'biweekly' : 'Sun_1' },  # day_of_BIweek ( Sun_1, Mon_1, Tue_1, Wed_1, Thu_1, Fri_1, Sat_1,    Sun_2, Mon_2, Tue_2, Wed_2, Thu_2, Fri_2, Sat_2 )
+   #'incremental_frequency' : { 'dom'      : '1'     },  # day_of_month ( 1-28 or last )
+   #'number_of_incrementals_per_full_backup_peried' : 3,
+   #*****************************************************************************
+   #*****************************************************************************
+
+
+
+
+   #*****************************************************************************
+   #*****************************************************************************
+   'backup_time_of_day' : '01_10',  # time_of_day: format is hh_mm ( military time )
+   #*****************************************************************************
+   #*****************************************************************************
+
+
+
+
+   #*****************************************************************************
+   #*****************************************************************************
+   # List of files and directories to be backed up.
+   # Their location is relative to the base_directory specified above.
+   'files_dirs' : {
+                   'dummy_xxx'             : True,  # True means encrypt first, then backup
+                   'dummy.py'              : True,  # False means no encryption
+                   'benchmarks.py'         : True,
+                   'file_count.py'         : True,
+                   'grep_a_file.py_xxx.py' : True,
+                   'grep_a_file.py'        : True,
+                   'grep_a_file_01.py'     : True,
+                   'scratch.py'            : True,
+                   'grep_a_file_02.py'     : True,
+                   'unit_test.py'          : True,
+                   'backup.py'             : True,
+                   'files_for_backup.py'   : True,
+                   'fredddd.py'            : True,
+                   'duuud'                 : True,
+                   'yyyyyyyyy'             : True,
+                   'zzzzzzzzz'             : True,
+                   'rrrrrrrrrrr'           : True,
+                   'wwwwwww'               : True
+                  },
+   #*****************************************************************************
+   #*****************************************************************************
+
+
+
+
+   #*****************************************************************************
+   #*****************************************************************************
+   # Backup locations
+   # Their location is relative to the base_directory specified above.
+   'backup_locations' : [
+                         'Dropbox/backups',
+                         'Dropbox/backups_01'
+                        ]
+   #*****************************************************************************
+   #*****************************************************************************
+
+
+         }

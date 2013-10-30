@@ -1,0 +1,73 @@
+backup_group_name: some_abritrary_user_selected_label
+backup_location_others:
+        Dropbox/backups: false
+        Dropbox/backups_01: false
+backup_location_reference:
+        local_backup: REFERENCE_BACKUP
+backup_owner_email_addreses:
+- perldave@gmail.com
+- david.mcallister@asicanalytic.com
+backup_owner_phone_numbers:
+        cell: 952-445-9242
+        home: 952-715-0360
+backup_sets:
+        1378973400:
+                atomic: 'yes'
+                backup_time: Sun Sep 22 08:35:49 PDT 2013
+                file_path: local_backup/1378973400/1378973400_full/1378973400.tar.gz.gpg
+                result: good
+                sha1: 11f91948c0e8d60fdb0b7ebdbfb4aee106d945af
+                type: FULL
+        1379232600:
+                atomic: 'yes'
+                backup_time: Sun Sep 22 08:35:49 PDT 2013
+                file_path: local_backup/1378973400/1379232600_incremental/1379232600.tar.gz.gpg
+                result: good
+                sha1: 11f91948c0e8d60fdb0b7ebdbfb4aee106d945af
+                type: FULL
+        1379837400:
+                atomic: 'yes'
+                backup_time: Sun Sep 22 08:35:49 PDT 2013
+                file_path: local_backup/1378973400/1379837400_incremental/1379837400.tar.gz.gpg
+                result: good
+                sha1: 11f91948c0e8d60fdb0b7ebdbfb4aee106d945af
+                type: FULL
+backup_time_of_day: '01_10'
+base_directory: /home/david
+company_name: XYZ Company
+enable_backups: true
+files_dirs:
+        backup.py: true
+        backup_conf.py: true
+        benchmarks.py: true
+        dummy.py: true
+        dummy_xxx: true
+        duuud: true
+        file_count.py: true
+        fredddd.py: true
+        grep_a_file.py: true
+        grep_a_file.py_xxx.py: true
+        grep_a_file_01.py: false
+        grep_a_file_02.py: true
+        rrrrrrrrrrr: true
+        scratch.py: true
+        unit_test.py: true
+        wwwwwww: true
+        yyyyyyyyy: true
+        zzzzzzzzz: true
+full_backup_frequency:
+- biweekly
+- Thu
+- true
+gpg_email: xxx@somedomain.com
+incremental_frequency:
+- dow
+- Sun
+max_incrementals: 5
+owner_address: 1831 Evergreen Lane, Shakopee, MN 55379
+owner_name: David McAllister
+program:
+        program_author: David McAllister
+        program_date: some_date
+        program_name: backup.py
+        program_version: '1.0'
