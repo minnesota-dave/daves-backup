@@ -5,7 +5,8 @@ python:
 install: ''
 # command to run tests, e.g. python setup.py test
 
-script:  cd src
-script:  rm -rf local_backup/Wed_Oct_30_2013_GMT___Full   Dropbox/backups*/Wed_Oct_30_2013_GMT___Full
-script:  python ./unit_test.py  -r backup_report.py
-script:  cd ..
+script:
+   -     cd src
+   -     rm -rf local_backup/Wed_Oct_30_2013_GMT___Full   Dropbox/backups*/Wed_Oct_30_2013_GMT___Full
+   -     python ./unit_test.py  -r backup_report.py
+   -     cd ..
