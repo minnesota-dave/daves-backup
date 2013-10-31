@@ -3,6 +3,27 @@ python:
   - "2.7"
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install: pip install -r requirements.txt --use-mirrors
+   - "pip install backup"
+   - "pip install backup_conf"
+   - "pip install backup_support"
+   - "pip install calendar"
+   - "pip install datetime"
+   - "pip install filecmp"
+   - "pip install fnmatch"
+   - "pip install glob"
+   - "pip install gnupg"
+   - "pip install gzip"
+   - "pip install hashlib"
+   - "pip install mimetypes"
+   - "pip install os"
+   - "pip install pprint"
+   - "pip install re"
+   - "pip install sys"
+   - "pip install tarfile"
+   - "pip install time"
+   - "pip install time_extra"
+   - "pip install unittest"
+
 # command to run tests, e.g. python setup.py test
 
 script:
