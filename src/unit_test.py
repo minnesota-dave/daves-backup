@@ -91,6 +91,11 @@ class Test_yyy(unittest.TestCase):
 
 
    def test_increment_day_by_n_months(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       data_set = [ #month_step reference_time   reference_date                 new_date
                   ['-26',  1311027829,  'Mon Jul 18 22:23:49 2011',  'Mon Jul 18 22:23:49 2011'],
                   ['-25',  1313706229,  'Thu Aug 18 22:23:49 2011',  'Thu Aug 18 22:23:49 2011'],
@@ -203,12 +208,6 @@ class Test_yyy(unittest.TestCase):
                   [ '24',  1393629829,  'Fri Sep 18 22:23:49 2015',  'Fri Feb 28 23:23:49 2014'],
                   [ '25',  1396308229,  'Sun Oct 18 22:23:49 2015',  'Mon Mar 31 23:23:49 2014'],
                   [ '26',  1398900229,  'Wed Nov 18 22:23:49 2015',  'Wed Apr 30 23:23:49 2014']
-
-
-
-
-
-
                  ]
 
 
@@ -331,7 +330,27 @@ class Test_yyy(unittest.TestCase):
       for month_step in data_set:
 
          # Check against output epoch time
-         self.assertEqual( month_step[1], self.te.increment_day_by_n_months(time_in, int(month_step[0]) ) )
+
+
+         for time_format in [time_in, int(time_in), time.gmtime(time_in)]:
+
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+
+#            print "\n\n  Thing_1  /  Thing_2      '%s'  /  ''%s'\n\n" % ( type(time_format), type(int(month_step[0])) )
+            day_incremented_by_months = self.te.increment_day_by_n_months(time_format, int(month_step[0]) )
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( month_step[1], calendar.timegm(day_incremented_by_months) )
+            else:
+               self.assertEqual( month_step[1], day_incremented_by_months )
+
+
+
+#         print "\n\n  Thing_1  /  Thing_2   '%s'  '%s'  /  '%s'      '%s'\n\n" % ( type(time_in), time_in, type(time.gmtime(time_in)), type(self.te.increment_day_by_n_months(time_in, int(month_step[0]))) )
          self.assertEqual( month_step[1], calendar.timegm( self.te.increment_day_by_n_months(time.gmtime(time_in), int(month_step[0])) ) )
 
          # Check against output date_time string
@@ -362,14 +381,27 @@ class Test_yyy(unittest.TestCase):
          self.assertEqual( month_step[1], self.te.increment_day_by_n_months(time_xxx, int(month_step[0]) ) )
          self.assertEqual( month_step[3], time.asctime(time.gmtime( self.te.increment_day_by_n_months(time_xxx, int(month_step[0])) ) ) )
 
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
+
 
    def test_increment_day_by_n_days(self):
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
       time_in = time.gmtime()
-      for day_step in range(-400,-400):
-         for time_input in [time_in, calendar.timegm(time_in)]:
-            incremented_time = self.te.increment_day_by_n_days(time_input, day_step)
+      for day_step in range(-400,400):
+         for time_format in [time_in, calendar.timegm(time_in), (calendar.timegm(time_in) + 0.01)]:
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+            incremented_time = self.te.increment_day_by_n_days(time_format, day_step)
 
-            input_epoch_first_of_day  = self.te.truncate_any_time_to_first_epoch_of_day(time_input)
+            input_epoch_first_of_day  = self.te.truncate_any_time_to_first_epoch_of_day(time_format)
             offset_epoch_first_of_day = self.te.truncate_any_time_to_first_epoch_of_day(incremented_time)
 
             num_day_offset_a = ( offset_epoch_first_of_day - input_epoch_first_of_day ) / self.seconds_per_day
@@ -378,6 +410,10 @@ class Test_yyy(unittest.TestCase):
                num_day_offset_c = num_day_offset_a - 0.5
             num_day_offset_b = int( num_day_offset_c )
             self.assertEqual( day_step, num_day_offset_b )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_convert_date_to_backup_timeofday_in_epoch(self):
@@ -400,34 +436,76 @@ class Test_yyy(unittest.TestCase):
 
 
    def test_difference_of_days(self):
-      for time_1 in self.times_1:
-         time_1_mod = time_1
-         if time_1.__class__.__name__ != 'struct_time':
-            time_1_mod = time.gmtime(time_1)
 
-         month_1  = time.strftime("%b", time_1_mod)
-         dom_1    = time.strftime("%d", time_1_mod)
-         year_1   = time.strftime("%Y", time_1_mod)
-         start_of_day_1 = time.strptime(dom_1 + ' ' + month_1 + ' ' + year_1, "%d %b %Y")
-         first_epoch_of_day_1 = calendar.timegm(start_of_day_1)
+      tested_with_time_int_1         = False
+      tested_with_time_float_1       = False
+      tested_with_time_struct_time_1 = False
 
-         for time_2 in self.times_2:
-            time_2_mod = time_2
-            if time_2.__class__.__name__ != 'struct_time':
-               time_2_mod = time.gmtime(time_2)
+      tested_with_time_int_2         = False
+      tested_with_time_float_2       = False
+      tested_with_time_struct_time_2 = False
 
-            month_2  = time.strftime("%b", time_2_mod)
-            dom_2    = time.strftime("%d", time_2_mod)
-            year_2   = time.strftime("%Y", time_2_mod)
-            start_of_day_2 = time.strptime(dom_2 + ' ' + month_2 + ' ' + year_2, "%d %b %Y")
-            first_epoch_of_day_2 = calendar.timegm(start_of_day_2)
+      for local_time_1 in self.times_1:
+         for time_format_1 in [local_time_1, int(local_time_1), time.gmtime(local_time_1)]:
+            time_1_mod = time_format_1
+            if time_format_1.__class__.__name__ != 'struct_time':
+               time_1_mod = time.gmtime(time_format_1)
 
-            day_delta = round( ( first_epoch_of_day_1  -  first_epoch_of_day_2 ) / self.seconds_per_day )
+            month_1  = time.strftime("%b", time_1_mod)
+            dom_1    = time.strftime("%d", time_1_mod)
+            year_1   = time.strftime("%Y", time_1_mod)
+            start_of_day_1 = time.strptime(dom_1 + ' ' + month_1 + ' ' + year_1, "%d %b %Y")
+            first_epoch_of_day_1 = calendar.timegm(start_of_day_1)
 
-            self.assertEqual(day_delta, self.te.difference_of_days(time_1, time_2) )
+            for local_time_2 in self.times_2:
+               for time_format_2 in [local_time_2, int(local_time_2), time.gmtime(local_time_2)]:
+                  time_2_mod = time_format_2
+                  if time_format_2.__class__.__name__ != 'struct_time':
+                     time_2_mod = time.gmtime(time_format_2)
+
+                  month_2  = time.strftime("%b", time_2_mod)
+                  dom_2    = time.strftime("%d", time_2_mod)
+                  year_2   = time.strftime("%Y", time_2_mod)
+                  start_of_day_2 = time.strptime(dom_2 + ' ' + month_2 + ' ' + year_2, "%d %b %Y")
+                  first_epoch_of_day_2 = calendar.timegm(start_of_day_2)
+
+                  day_delta = round( ( first_epoch_of_day_1  -  first_epoch_of_day_2 ) / self.seconds_per_day )
+
+                  if time_format_1.__class__.__name__ == 'int':
+                     tested_with_time_int_1 = True
+                  if time_format_1.__class__.__name__ == 'float':
+                     tested_with_time_float_1 = True
+                  if time_format_1.__class__.__name__ == 'struct_time':
+                     tested_with_time_struct_time_1 = True
+
+                  if time_format_2.__class__.__name__ == 'int':
+                     tested_with_time_int_2 = True
+                  if time_format_2.__class__.__name__ == 'float':
+                     tested_with_time_float_2 = True
+                  if time_format_2.__class__.__name__ == 'struct_time':
+                     tested_with_time_struct_time_2 = True
+
+                  self.assertEqual(day_delta, self.te.difference_of_days(time_format_1, time_format_2) )
+
+      self.assertTrue( tested_with_time_int_1         )
+      self.assertTrue( tested_with_time_float_1       )
+      self.assertTrue( tested_with_time_struct_time_1 )
+
+      self.assertTrue( tested_with_time_int_2         )
+      self.assertTrue( tested_with_time_float_2       )
+      self.assertTrue( tested_with_time_struct_time_2 )
 
 
    def test_difference_of_months(self):
+
+      tested_with_time_int_1         = False
+      tested_with_time_float_1       = False
+      tested_with_time_struct_time_1 = False
+
+      tested_with_time_int_2         = False
+      tested_with_time_float_2       = False
+      tested_with_time_struct_time_2 = False
+
       for time_1 in self.times_1:
          time_1_mod = time_1
          if time_1.__class__.__name__ != 'struct_time':
@@ -455,25 +533,68 @@ class Test_yyy(unittest.TestCase):
             year_1_int = int(year_1)
             year_2_int = int(year_2)
             day_delta = ( year_1_int - year_2_int) * 12 + ( mon_1_int - mon_2_int )
-            self.assertEqual(day_delta, self.te.difference_of_months(time_1, time_2) )
+
+            for time_format_1 in [time_1, int(time_1), time.gmtime(time_1)]:
+               for time_format_2 in [time_2, int(time_2), time.gmtime(time_2)]:
+
+                  if time_format_1.__class__.__name__ == 'int':
+                     tested_with_time_int_1 = True
+                  if time_format_1.__class__.__name__ == 'float':
+                     tested_with_time_float_1 = True
+                  if time_format_1.__class__.__name__ == 'struct_time':
+                     tested_with_time_struct_time_1 = True
+
+                  if time_format_2.__class__.__name__ == 'int':
+                     tested_with_time_int_2 = True
+                  if time_format_2.__class__.__name__ == 'float':
+                     tested_with_time_float_2 = True
+                  if time_format_2.__class__.__name__ == 'struct_time':
+                           tested_with_time_struct_time_2 = True
+
+                  self.assertEqual(day_delta, self.te.difference_of_months(time_format_1, time_format_2) )
+
+      self.assertTrue( tested_with_time_int_1         )
+      self.assertTrue( tested_with_time_float_1       )
+      self.assertTrue( tested_with_time_struct_time_1 )
+
+      self.assertTrue( tested_with_time_int_2         )
+      self.assertTrue( tested_with_time_float_2       )
+      self.assertTrue( tested_with_time_struct_time_2 )
 
 
    def test_truncate_any_time_to_first_epoch_of_day(self):
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       times_list  = self.times_1
       times_list += self.times_2
 
       epochs_list  = self.times_1_epoch_first
       epochs_list += self.times_2_epoch_first
 
-#      print "\n\n"
       for index in range( 0, len(times_list) ):
+         for time_format in [times_list[index], int(times_list[index]), time.gmtime(times_list[index])]:
 
-#         print " first  /  second    %s    %s       %s    %s" % ( times_list[index], epochs_list[index], time.asctime(time.gmtime(   times_list[index]   )), time.asctime(time.gmtime(epochs_list[index])) )
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+            self.assertEqual( self.te.truncate_any_time_to_first_epoch_of_day( time_format ),  epochs_list[index] )
 
-         self.assertEqual( self.te.truncate_any_time_to_first_epoch_of_day( times_list[index] ),  epochs_list[index] )
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_get_day_of_month(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                    1464995170.43  : 03,
                    1467307573.28  : 30,
@@ -494,15 +615,38 @@ class Test_yyy(unittest.TestCase):
                    1501993616.03  :  6,
                    1504306018.88  :  1
                   }
-      for item in sorted( test_data ):
-         time_struct_time = time.gmtime(item)
-#         print "\n   epoch  \  dom   '%s'  \  '%s'\n" % (item, test_data[item])
+      for data_point in sorted( test_data ):
+         for time_format in [data_point, int(data_point)]:
+            time_struct_time = time.gmtime(data_point)
 
-         self.assertEqual( test_data[item], int(self.te.get_day_of_month( item ) ) )
-         self.assertEqual( test_data[item], int(self.te.get_day_of_month( time_struct_time ) ) )
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+
+            if time_struct_time.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_struct_time.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_struct_time.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+
+            self.assertEqual( test_data[data_point], int(self.te.get_day_of_month( time_format      ) ) )
+            self.assertEqual( test_data[data_point], int(self.te.get_day_of_month( time_struct_time ) ) )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_get_month(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                    1464995170.43  : ['06', 'Jun'],
                    1467307573.28  : ['06', 'Jun'],
@@ -525,14 +669,30 @@ class Test_yyy(unittest.TestCase):
                   }
 
       for item in sorted( test_data ):
-         time_struct_time = time.gmtime(item)
-         for time_00 in [item, time_struct_time]:
-            self.assertEqual( test_data[item][0], self.te.get_month( time_00 ) )
-            self.assertEqual( test_data[item][0], self.te.get_month( time_00, True ) )
-            self.assertEqual( test_data[item][1], self.te.get_month( time_00, False ) )
+         for time_format in [item, int(item), time.gmtime(item)]:
+
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+
+            self.assertEqual( test_data[item][0], self.te.get_month( time_format ) )
+            self.assertEqual( test_data[item][0], self.te.get_month( time_format, True ) )
+            self.assertEqual( test_data[item][1], self.te.get_month( time_format, False ) )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_get_year(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                     903127110.38  : '1998',
                     939287916.08  : '1999',
@@ -555,12 +715,27 @@ class Test_yyy(unittest.TestCase):
                   }
 
       for item in sorted( test_data ):
-         time_struct_time = time.gmtime(item)
-         for time_00 in [item, time_struct_time]:
-            self.assertEqual( test_data[item], self.te.get_year( time_00 ) )
+         for time_format in [item, int(item), time.gmtime(item)]:
+
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+
+            self.assertEqual( test_data[item], self.te.get_year( time_format ) )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_truncate_any_time_to_last_epoch_of_day(self):
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                     903127110.38  :  903139199.0,
                     939287916.08  :  939340799.0,
@@ -588,11 +763,28 @@ class Test_yyy(unittest.TestCase):
 
 #         print " first  /  second    %s" % ( self.te.truncate_any_time_to_last_epoch_of_day( item ) )
 
-         for time_00 in [item, time_struct_time]:
-            self.assertEqual( test_data[item], self.te.truncate_any_time_to_last_epoch_of_day( time_00 ) )
+         for time_format in [item, int(item), time_struct_time]:
+
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+
+            self.assertEqual( test_data[item], self.te.truncate_any_time_to_last_epoch_of_day( time_format ) )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_increment_day_to_next_occurrence_of_day_of_week(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                      51655110.38    :  ['Fri',    52173510.38,    52173510],    #    'Sat'            6
                     109453137.239   :  ['Wed',   109453137.239,  109453137],    #    'Wed'            0
@@ -632,15 +824,33 @@ class Test_yyy(unittest.TestCase):
                   }
 
       for item in sorted( test_data ):
-         time_struct_time = time.gmtime(item)
+         for time_format in [item, int(item), time.gmtime(item)]:
 
-#         print " first  /  second    %s,  %s" % ( self.te.increment_day_to_next_occurrence_of_day_of_week( item, test_data[item][0] ), self.te.increment_day_to_next_occurrence_of_day_of_week( calendar.timegm(time_struct_time), test_data[item][0] ) )
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
 
-         self.assertEqual( test_data[item][1], self.te.increment_day_to_next_occurrence_of_day_of_week( item, test_data[item][0] ) )
-         self.assertEqual( test_data[item][2], self.te.increment_day_to_next_occurrence_of_day_of_week( calendar.timegm(time_struct_time), test_data[item][0] ) )
+            if time_format.__class__.__name__ == 'float':
+               self.assertEqual( test_data[item][1], self.te.increment_day_to_next_occurrence_of_day_of_week( time_format, test_data[item][0] ) )
+            if time_format.__class__.__name__ == 'int':
+               self.assertEqual( int(test_data[item][1]), self.te.increment_day_to_next_occurrence_of_day_of_week( time_format, test_data[item][0] ) )
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( time.gmtime(test_data[item][1]), self.te.increment_day_to_next_occurrence_of_day_of_week( time_format, test_data[item][0] ) )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_get_the_integer_last_day_of_month(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                      51655110.38    :  31,
                     109453137.239   :  30,
@@ -680,12 +890,28 @@ class Test_yyy(unittest.TestCase):
                   }
 
       for item in sorted( test_data ):
-         time_struct_time = time.gmtime(item)
-         self.assertEqual( test_data[item], self.te.get_the_integer_last_day_of_month( item ) )
-         self.assertEqual( test_data[item], self.te.get_the_integer_last_day_of_month( calendar.timegm(time_struct_time) ) )
+         for time_format in [item, int(item), time.gmtime(item)]:
+
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+
+            self.assertEqual( test_data[item], self.te.get_the_integer_last_day_of_month( time_format ) )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_get_first_day_of_month(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                      51655110.38   :  [  49927110.38,     'Sat Aug 21 20:38:30 1971',    'Sun Aug  1 20:38:30 1971'],
                     109453137.239  :  [ 107811537.239,    'Wed Jun 20 19:38:57 1973',    'Fri Jun  1 19:38:57 1973'],
@@ -729,20 +955,36 @@ class Test_yyy(unittest.TestCase):
          time_struct_time = time.gmtime(data_list)
 
          # Check with epoch time as input
-         first_day_in_month = self.te.get_first_day_of_month( data_list )
-#         print " first  /  second    '%s,  %s,  '%s'" % (first_day_in_month, time.asctime(time.gmtime(data_list)), time.asctime(time.gmtime(first_day_in_month)) )
-         self.assertEqual( first_day_in_month,                            test_data[data_list][0] )
-         self.assertEqual( time.asctime(time.gmtime(data_list)),          test_data[data_list][1] )
-         self.assertEqual( time.asctime(time.gmtime(first_day_in_month)), test_data[data_list][2] )
 
-         # Check with 'struct_time' object as input
-         if round(test_data[data_list][0])  ==  int(test_data[data_list][0]):
-            self.assertEqual( round(test_data[data_list][0]), self.te.get_first_day_of_month( calendar.timegm(time_struct_time) ) )
-         else:
-            self.assertEqual(   int(test_data[data_list][0]), self.te.get_first_day_of_month( calendar.timegm(time_struct_time) ) )
+         for time_format in [data_list, int(data_list), time.gmtime(data_list)]:
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
+
+            first_day_in_month = self.te.get_first_day_of_month( time_format )
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( calendar.timegm(first_day_in_month), int(test_data[data_list][0]) )
+               self.assertEqual( time.asctime(time_format),           test_data[data_list][1]      )
+               self.assertEqual( time.asctime(first_day_in_month),    test_data[data_list][2]      )
+            else:
+               self.assertEqual( int(first_day_in_month),                       int(test_data[data_list][0]) )
+               self.assertEqual( time.asctime(time.gmtime(time_format)),        test_data[data_list][1]      )
+               self.assertEqual( time.asctime(time.gmtime(first_day_in_month)), test_data[data_list][2]      )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_get_last_day_of_month(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                      51655110.38   :  [  52519110,  'Sat Aug 21 20:38:30 1971',  'Tue Aug 31 20:38:30 1971'],
                     109453137.239  :  [ 110317137,  'Wed Jun 20 19:38:57 1973',  'Sat Jun 30 19:38:57 1973'],
@@ -784,44 +1026,88 @@ class Test_yyy(unittest.TestCase):
       for data_list in sorted( test_data ):
          time_struct_time = time.gmtime(data_list)
 
-         # Check with epoch time as input
-         last_day_in_month = self.te.get_last_day_of_month( data_list )
+         for time_format in [data_list, int(data_list), time.gmtime(data_list)]:
 
-#         print " first  /  second    %s,  '%s',  '%s'" % (last_day_in_month, time.asctime(time.gmtime(data_list)), time.asctime(time.gmtime(last_day_in_month)) )
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
 
-         self.assertEqual( last_day_in_month,                            test_data[data_list][0] )
-         self.assertEqual( time.asctime(time.gmtime(data_list)),         test_data[data_list][1] )
-         self.assertEqual( time.asctime(time.gmtime(last_day_in_month)), test_data[data_list][2] )
+            last_day_in_month = self.te.get_last_day_of_month( time_format )
 
-         # Check with 'struct_time' object as input
-         if round(test_data[data_list][0])  ==  int(test_data[data_list][0]):
-            self.assertEqual( round(test_data[data_list][0]), self.te.get_last_day_of_month( calendar.timegm(time_struct_time) ) )
-         else:
-            self.assertEqual(   int(test_data[data_list][0]), self.te.get_last_day_of_month( calendar.timegm(time_struct_time) ) )
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( last_day_in_month,                            time.gmtime(test_data[data_list][0]) )
+               self.assertEqual( time.asctime(time_format),                    test_data[data_list][1] )
+               self.assertEqual( time.asctime(last_day_in_month),              test_data[data_list][2] )
+            else:
+               self.assertEqual( last_day_in_month,                            test_data[data_list][0] )
+               self.assertEqual( time.asctime(time.gmtime(time_format)),       test_data[data_list][1] )
+               self.assertEqual( time.asctime(time.gmtime(last_day_in_month)), test_data[data_list][2] )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_normalize_date_format(self):
 
-      time_a_in_struct_time_format = time.gmtime()
-      time_a_in_epoch_format       = calendar.timegm(time_a_in_struct_time_format)
+      tested_with_time_int_1         = False
+      tested_with_time_float_1       = False
+      tested_with_time_struct_time_1 = False
 
-      time_b_in_struct_time_format = time.gmtime()
-      time_b_in_epoch_format       = calendar.timegm(time_b_in_struct_time_format)
+      tested_with_time_int_2         = False
+      tested_with_time_float_2       = False
+      tested_with_time_struct_time_2 = False
 
-      day_a = self.te.normalize_date_format(time_a_in_struct_time_format, time_b_in_struct_time_format)
-      self.assertEqual( 'struct_time', day_a.__class__.__name__  )
+      time_1 = 1149817620.69
+      time_2 = 571837352.107
+      for time_format_1 in [time_1, int(time_1), time.gmtime(time_1)]:
+         for time_format_2 in [time_2, int(time_2), time.gmtime(time_2)]:
+#            print "\n\n  Thing_1  /  Thing_2   '%s'  /  '%s'\n\n" % ( type(time_format_1), type(time_format_2) )
 
-      day_b = self.te.normalize_date_format(time_a_in_struct_time_format, time_b_in_epoch_format)
-      self.assertEqual( 'int', day_b.__class__.__name__  )
+            if time_format_1.__class__.__name__ == 'int':
+               tested_with_time_int_1 = True
+            if time_format_1.__class__.__name__ == 'float':
+               tested_with_time_float_1 = True
+            if time_format_1.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time_1 = True
 
-      day_c = self.te.normalize_date_format(time_a_in_epoch_format, time_b_in_struct_time_format)
-      self.assertEqual( 'struct_time', day_c.__class__.__name__  )
+            if time_format_2.__class__.__name__ == 'int':
+               tested_with_time_int_2 = True
+            if time_format_2.__class__.__name__ == 'float':
+               tested_with_time_float_2 = True
+            if time_format_2.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time_2 = True
 
-      day_d = self.te.normalize_date_format(time_a_in_epoch_format, time_b_in_epoch_format)
-      self.assertEqual( 'int', day_d.__class__.__name__  )
+
+            if time_format_2.__class__.__name__ == 'int':
+               day = self.te.normalize_date_format(time_format_1, time_format_2)
+               self.assertEqual( 'float', day.__class__.__name__  )
+
+            if time_format_2.__class__.__name__ == 'float':
+               day = self.te.normalize_date_format(time_format_1, time_format_2)
+               self.assertEqual( 'float', day.__class__.__name__  )
+
+            if time_format_2.__class__.__name__ == 'struct_time':
+               day = self.te.normalize_date_format(time_format_1, time_format_2)
+               self.assertEqual( 'struct_time', day.__class__.__name__  )
+
+      self.assertTrue( tested_with_time_int_1         )
+      self.assertTrue( tested_with_time_float_1       )
+      self.assertTrue( tested_with_time_struct_time_1 )
+
+      self.assertTrue( tested_with_time_int_2         )
+      self.assertTrue( tested_with_time_float_2       )
+      self.assertTrue( tested_with_time_struct_time_2 )
 
 
    def test_get_day_of_current_month(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
 
       test_data_xxx = {
                        109453137.239   :  {
@@ -956,15 +1242,41 @@ class Test_yyy(unittest.TestCase):
          data_list = test_data_xxx[epoch_time]
          for dom in test_data_xxx[epoch_time]:
 
-            day_a = self.te.get_day_of_current_month(epoch_time, dom)
-            self.assertEqual( time.asctime(time.gmtime(epoch_time)), test_data_xxx[epoch_time][dom][0] )
-            if not day_a:
-               self.assertEqual( day_a,             test_data_xxx[epoch_time][dom][1] )
-            else:
-               self.assertEqual( time.asctime(time.gmtime(day_a)), test_data_xxx[epoch_time][dom][1] )
+            for time_format in [epoch_time, int(epoch_time), time.gmtime(epoch_time)]:
+
+
+               if time_format.__class__.__name__ == 'int':
+                  tested_with_time_int = True
+               if time_format.__class__.__name__ == 'float':
+                  tested_with_time_float = True
+               if time_format.__class__.__name__ == 'struct_time':
+                  tested_with_time_struct_time = True
+
+               day_a = self.te.get_day_of_current_month(time_format, dom)
+               if time_format.__class__.__name__ == 'struct_time':
+                  self.assertEqual( time.asctime(time_format), test_data_xxx[epoch_time][dom][0] )
+                  if not day_a:
+                     self.assertEqual( day_a,             test_data_xxx[epoch_time][dom][1] )
+                  else:
+                     self.assertEqual( time.asctime(day_a), test_data_xxx[epoch_time][dom][1] )
+               else:
+                  self.assertEqual( time.asctime(time.gmtime(time_format)), test_data_xxx[epoch_time][dom][0] )
+                  if not day_a:
+                     self.assertEqual( day_a,             test_data_xxx[epoch_time][dom][1] )
+                  else:
+                     self.assertEqual( time.asctime(time.gmtime(day_a)), test_data_xxx[epoch_time][dom][1] )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_get_first_day_of_quarter(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                       51655110.38   :  ['Sat Aug 21 20:38:30 1971',  'Thu Jul  1 20:38:30 1971'],
                      109453137.239  :  ['Wed Jun 20 19:38:57 1973',  'Sun Apr  1 19:38:57 1973'],
@@ -1004,19 +1316,36 @@ class Test_yyy(unittest.TestCase):
                   }
 
       for data_list in sorted( test_data ):
-         # Check with epoch time as input
-         last_day_in_quarter = self.te.get_first_day_of_quarter( data_list )
-#         print " first  /  second    '%s,  %s" % (time.asctime(time.gmtime( data_list )), time.asctime(time.gmtime( last_day_in_quarter )) )
+         for time_format in [data_list, int(data_list), time.gmtime(data_list)]:
 
-         self.assertEqual( time.asctime(time.gmtime( data_list )),           test_data[data_list][0] )
-         self.assertEqual( time.asctime(time.gmtime( last_day_in_quarter )), test_data[data_list][1] )
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
 
-         # Check with 'struct_time' object as input
-         last_day_in_quarter = self.te.get_first_day_of_quarter( time.gmtime(data_list) )
-         self.assertEqual( time.asctime(time.gmtime( calendar.timegm(last_day_in_quarter) )), test_data[data_list][1] )
+            last_day_in_quarter = self.te.get_first_day_of_quarter( time_format )
+#            print " first  /  second    '%s,  %s" % (time.asctime(time.gmtime( time_format )), time.asctime(time.gmtime( last_day_in_quarter )) )
+
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( time.asctime( time_format ),         test_data[data_list][0] )
+               self.assertEqual( time.asctime( last_day_in_quarter ), test_data[data_list][1] )
+            else:
+               self.assertEqual( time.asctime(time.gmtime( time_format )),         test_data[data_list][0] )
+               self.assertEqual( time.asctime(time.gmtime( last_day_in_quarter )), test_data[data_list][1] )
+
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_get_last_day_of_quarter(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data = {
                       51655110.38   :  ['Sat Aug 21 20:38:30 1971',  'Thu Sep 30 20:38:30 1971'],
                      109453137.239  :  ['Wed Jun 20 19:38:57 1973',  'Sat Jun 30 19:38:57 1973'],
@@ -1056,28 +1385,43 @@ class Test_yyy(unittest.TestCase):
                   }
 
       for data_list in sorted( test_data ):
-         # Check with epoch time as input
-         last_day_in_quarter = self.te.get_last_day_of_quarter( data_list )
+         for time_format in [data_list, int(data_list), time.gmtime(data_list)]:
 
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
 
-#         print " first  /  second    '%s',  '%s'" % ( time.asctime(time.gmtime(data_list)), time.asctime(time.gmtime( last_day_in_quarter )) )
+            last_day_in_quarter = self.te.get_last_day_of_quarter( time_format )
 
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( time.asctime(time_format),            test_data[data_list][0] )
+               self.assertEqual( time.asctime( last_day_in_quarter ),  test_data[data_list][1] )
+            else:
+               self.assertEqual( time.asctime(time.gmtime(time_format)),            test_data[data_list][0] )
+               self.assertEqual( time.asctime(time.gmtime( last_day_in_quarter )),  test_data[data_list][1] )
 
-         self.assertEqual( time.asctime(time.gmtime(data_list)),              test_data[data_list][0] )
-         self.assertEqual( time.asctime(time.gmtime( last_day_in_quarter )),  test_data[data_list][1] )
-
-         # Check with 'struct_time' object as input
-         last_day_in_quarter = self.te.get_last_day_of_quarter( time.gmtime(data_list) )
-         self.assertEqual( time.asctime(time.gmtime( calendar.timegm(last_day_in_quarter) )), test_data[data_list][1] )
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_set_date_timeofday_to_reference(self):
+
+      tested_with_time_int_1         = False
+      tested_with_time_float_1       = False
+      tested_with_time_struct_time_1 = False
+
+      tested_with_time_int_2         = False
+      tested_with_time_float_2       = False
+      tested_with_time_struct_time_2 = False
 
       time_baseline = 1034221566.98
 
       for time_factor in [ 45.3423, 0.675, 77.1077, 32.5, 53.47945]:
          for sign_factor in [ -1, 1 ]:
-
 
             # time_0 is in epoch seconds format
             # time_n is in epoch seconds format
@@ -1085,11 +1429,56 @@ class Test_yyy(unittest.TestCase):
             time_n = time_0 + self.seconds_per_day * time_factor * sign_factor
             self.assertNotEqual( time_0, time_n )
             num_days_different = self.te.difference_of_days(time_n, time_0)
+#            print "\n\n  Thing_1  /  Thing_2   '%s'  /  '%s'\n\n" % ( type(time_0), type(num_days_different) )
             incremented_time = self.te.increment_day_by_n_days(time_0, num_days_different)
             self.assertEqual(    0, self.te.difference_of_days(incremented_time, time_n) )
             self.assertNotEqual( incremented_time, time_n )
-            new_epoch_02 = self.te.set_date_timeofday_to_reference(incremented_time, time_n)
-            self.assertEqual(    new_epoch_02, time_n )
+
+            time_format_1 = incremented_time
+            time_format_2 = time_n
+
+            for time_format_1 in [incremented_time, int(incremented_time), time.gmtime(incremented_time)]:
+               for time_format_2 in [time_n, int(time_n), time.gmtime(time_n)]:
+
+                  if time_format_1.__class__.__name__ == 'int':
+                     tested_with_time_int_1 = True
+                  if time_format_1.__class__.__name__ == 'float':
+                     tested_with_time_float_1 = True
+                  if time_format_1.__class__.__name__ == 'struct_time':
+                     tested_with_time_struct_time_1 = True
+
+
+
+
+
+
+
+
+
+
+
+                  if time_format_2.__class__.__name__ == 'int':
+                     tested_with_time_int_2 = True
+                  if time_format_2.__class__.__name__ == 'float':
+                     tested_with_time_float_2 = True
+                  if time_format_2.__class__.__name__ == 'struct_time':
+                     tested_with_time_struct_time_2 = True
+
+
+                  if time_format_1.__class__.__name__ == 'int':
+#                     print "\n\n  Thing_1  /  Thing_2   '%s'  /  '%s'\n\n" % ( type(time_format_1), type(time_format_2) )
+                     new_epoch_02 = self.te.set_date_timeofday_to_reference(time_format_1, time_format_2)
+
+                     self.assertEqual( new_epoch_02.__class__.__name__, 'float' )
+                     self.assertEqual( self.te.date_to_struct_time(new_epoch_02), self.te.date_to_struct_time(time_format_2) )
+
+#                  print "\n\n  Thing_1  /  Thing_2   '%s'  /  '%s'\n\n" % ( type(time_format_1), type(time_format_2) )
+                  new_epoch_02 = self.te.set_date_timeofday_to_reference(time_format_1, time_format_2)
+                  if time_format_1.__class__.__name__ == 'struct_time':
+                     self.assertEqual( new_epoch_02.__class__.__name__, 'struct_time' )
+                  else:
+                     self.assertEqual( new_epoch_02.__class__.__name__, 'float' )
+                  self.assertEqual( self.te.date_to_struct_time(new_epoch_02), self.te.date_to_struct_time(time_format_2) )
 
 
             # time_0 is in 'struct_time' object format
@@ -1176,102 +1565,110 @@ class Test_yyy(unittest.TestCase):
          new_epoch_02 = self.te.set_date_timeofday_to_reference(incremented_time, time_n)
          self.assertEqual(    new_epoch_02, time_n )
 
+      self.assertTrue( tested_with_time_int_1         )
+      self.assertTrue( tested_with_time_float_1       )
+      self.assertTrue( tested_with_time_struct_time_1 )
+
+      self.assertTrue( tested_with_time_int_2         )
+      self.assertTrue( tested_with_time_float_2       )
+      self.assertTrue( tested_with_time_struct_time_2 )
+
 
    def test_date_to_epoch(self):
 
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data_float = {
-                     803029459.0  :  'Tue Jun 13 00:44:19 1995',
-                     860827486.0  :  'Fri Apr 11 23:44:46 1997',
-                     918625513.0  :  'Tue Feb  9 21:45:13 1999',
-                     976423540.0  :  'Sat Dec  9 20:45:40 2000',
-                    1034221566.0  :  'Wed Oct  9 20:46:06 2002',
-                    1092019593.0  :  'Sun Aug  8 19:46:33 2004',
-                    1265413674.0  :  'Fri Feb  5 15:47:54 2010',
-                    1323211701.0  :  'Tue Dec  6 14:48:21 2011',
-                    1438807754.0  :  'Wed Aug  5 13:49:14 2015'
+                     803029459.0  :  'Tue Jun 13 07:44:19 1995',
+                     860827486.0  :  'Sat Apr 12 06:44:46 1997',
+                     918625513.0  :  'Wed Feb 10 05:45:13 1999',
+                     976423540.0  :  'Sun Dec 10 04:45:40 2000',
+                    1034221566.0  :  'Thu Oct 10 03:46:06 2002',
+                    1092019593.0  :  'Mon Aug  9 02:46:33 2004',
+                    1265413674.0  :  'Fri Feb  5 23:47:54 2010',
+                    1323211701.0  :  'Tue Dec  6 22:48:21 2011',
+                    1438807754.0  :  'Wed Aug  5 20:49:14 2015'
                   }
 
-      test_data_str = {
-                       '1381009728.0'  :  'Sat Oct  5 14:48:48 2013'
-                      }
+      for epoch_time in sorted(test_data_float):
+#         print "\n%s    '%s'    '%s'\n" % (epoch_time, time.asctime(time.gmtime(epoch_time)), test_data_float[epoch_time])
+         for time_format in [epoch_time, int(epoch_time), time.gmtime(epoch_time)]:
 
-      for epoch_time in test_data_float:
-         struct_time_obj = time.gmtime(epoch_time)
-         self.assertEqual(      epoch_time.__class__.__name__, 'float'       )
-         self.assertEqual( struct_time_obj.__class__.__name__, 'struct_time' )
 
-         date_from_epoch       = self.te.date_to_epoch(epoch_time)
-         date_from_struct_time = self.te.date_to_epoch(struct_time_obj)
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
 
-         self.assertEqual(       date_from_epoch.__class__.__name__, 'float' )
-         self.assertEqual( date_from_struct_time.__class__.__name__, 'int' )
+#            print "\n\n  Type_1      '%s'\n\n" % ( type(time_format) )
+            date_from_epoch = self.te.date_to_epoch(time_format)
+            self.assertEqual(  date_from_epoch.__class__.__name__, 'int' )
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( calendar.timegm(time_format), date_from_epoch )
+            else:
+               self.assertEqual( time_format, date_from_epoch )
 
-         self.assertEqual( epoch_time, date_from_epoch )
-         self.assertEqual( epoch_time, date_from_struct_time )
+            self.assertEqual( time.asctime(time.gmtime(date_from_epoch)),  test_data_float[epoch_time]  )
 
-      for epoch_time in test_data_str:
-         struct_time_obj = time.gmtime(float(epoch_time))
-         self.assertEqual(      epoch_time.__class__.__name__, 'str'         )
-         self.assertEqual( struct_time_obj.__class__.__name__, 'struct_time' )
-
-         date_from_epoch       = self.te.date_to_epoch(epoch_time)
-         date_from_struct_time = self.te.date_to_epoch(struct_time_obj)
-
-         self.assertEqual(       date_from_epoch.__class__.__name__, 'str'   )
-         self.assertEqual( date_from_struct_time.__class__.__name__, 'int' )
-
-         self.assertEqual( epoch_time,        date_from_epoch )
-         self.assertEqual( float(epoch_time), date_from_struct_time )
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_date_to_struct_time(self):
 
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
+
       test_data_float = {
-                     803029459.0  :  'Tue Jun 13 00:44:19 1995',
-                     860827486.0  :  'Fri Apr 11 23:44:46 1997',
-                     918625513.0  :  'Tue Feb  9 21:45:13 1999',
-                     976423540.0  :  'Sat Dec  9 20:45:40 2000',
-                    1034221566.0  :  'Wed Oct  9 20:46:06 2002',
-                    1092019593.0  :  'Sun Aug  8 19:46:33 2004',
-                    1265413674.0  :  'Fri Feb  5 15:47:54 2010',
-                    1323211701.0  :  'Tue Dec  6 14:48:21 2011',
-                    1438807754.0  :  'Wed Aug  5 13:49:14 2015'
+                     803029459.0  :  'Tue Jun 13 07:44:19 1995',
+                     860827486.0  :  'Sat Apr 12 06:44:46 1997',
+                     918625513.0  :  'Wed Feb 10 05:45:13 1999',
+                     976423540.0  :  'Sun Dec 10 04:45:40 2000',
+                    1034221566.0  :  'Thu Oct 10 03:46:06 2002',
+                    1092019593.0  :  'Mon Aug  9 02:46:33 2004',
+                    1265413674.0  :  'Fri Feb  5 23:47:54 2010',
+                    1323211701.0  :  'Tue Dec  6 22:48:21 2011',
+                    1438807754.0  :  'Wed Aug  5 20:49:14 2015'
                   }
 
-      test_data_str = {
-                    '1381009728.0'  :  'Sat Oct  5 14:48:48 2013'
-                  }
 
-      for epoch_time in test_data_float:
-         struct_time_obj = time.gmtime(epoch_time)
-         self.assertEqual(      epoch_time.__class__.__name__, 'float'       )
-         self.assertEqual( struct_time_obj.__class__.__name__, 'struct_time' )
+      for epoch_time in sorted(test_data_float):
+#         print "\n%s    '%s'    '%s'\n" % (epoch_time, time.asctime(time.gmtime(epoch_time)), test_data_float[epoch_time])
+         for time_format in [epoch_time, int(epoch_time), time.gmtime(epoch_time)]:
 
-         date_from_epoch       = self.te.date_to_struct_time(epoch_time)
-         date_from_struct_time = self.te.date_to_struct_time(struct_time_obj)
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
 
-         self.assertEqual(       date_from_epoch.__class__.__name__, 'struct_time' )
-         self.assertEqual( date_from_struct_time.__class__.__name__, 'struct_time' )
+            date_from_epoch = self.te.date_to_struct_time(time_format)
+            self.assertEqual( date_from_epoch.__class__.__name__, 'struct_time'   )
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( time_format,                        date_from_epoch )
+            else:
+               self.assertEqual( time_format,                        calendar.timegm(date_from_epoch) )
+#               print "\n        type_1   type_2   '%s'   /  '%s'\n" % ( type(date_from_epoch), type(test_data_float[epoch_time]) )
 
-         self.assertEqual( time.gmtime(epoch_time), date_from_epoch )
-         self.assertEqual( time.gmtime(epoch_time), date_from_struct_time )
+            self.assertEqual( time.asctime(date_from_epoch),  test_data_float[epoch_time]  )
 
-      for epoch_time in test_data_str:
-         struct_time_obj = time.gmtime(float(epoch_time))
-         self.assertEqual(      epoch_time.__class__.__name__, 'str'         )
-         self.assertEqual( struct_time_obj.__class__.__name__, 'struct_time' )
-
-         date_from_epoch       = self.te.date_to_struct_time(epoch_time)
-         date_from_struct_time = self.te.date_to_struct_time(struct_time_obj)
-
-         self.assertEqual(       date_from_epoch.__class__.__name__, 'struct_time' )
-         self.assertEqual( date_from_struct_time.__class__.__name__, 'struct_time' )
-
-         self.assertEqual( time.gmtime(float(epoch_time)), date_from_epoch )
-         self.assertEqual( time.gmtime(float(epoch_time)), date_from_struct_time )
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def test_date_to_datestring(self):
+
+      tested_with_time_int         = False
+      tested_with_time_float       = False
+      tested_with_time_struct_time = False
 
       test_data_float = {
                       803029459.0   :  'Tue Jun 13 07:44:19 1995',   # Date Stings are in UTC (GMT)
@@ -1285,45 +1682,27 @@ class Test_yyy(unittest.TestCase):
                      1438807754.0   :  'Wed Aug  5 20:49:14 2015'    # Date Stings are in UTC (GMT)
                   }
 
-      test_data_str = {
-                       '1381009728.0'  :  'Sat Oct  5 21:48:48 2013'
-                      }
-
       for epoch_time in sorted( test_data_float ):
-         struct_time_obj = time.gmtime(epoch_time)
-         self.assertEqual(      epoch_time.__class__.__name__, 'float'       )
-         self.assertEqual( struct_time_obj.__class__.__name__, 'struct_time' )
+#         print "\n%s    '%s'    '%s'\n" % (epoch_time, time.asctime(time.gmtime(epoch_time)), test_data_float[epoch_time])
+         for time_format in [epoch_time, int(epoch_time), time.gmtime(epoch_time)]:
 
-         date_from_epoch       = self.te.date_to_datestring(epoch_time)
-         date_from_struct_time = self.te.date_to_datestring(struct_time_obj)
+            if time_format.__class__.__name__ == 'int':
+               tested_with_time_int = True
+            if time_format.__class__.__name__ == 'float':
+               tested_with_time_float = True
+            if time_format.__class__.__name__ == 'struct_time':
+               tested_with_time_struct_time = True
 
-         self.assertEqual(       date_from_epoch.__class__.__name__, 'str' )
-         self.assertEqual( date_from_struct_time.__class__.__name__, 'str' )
+            date_from_epoch = self.te.date_to_datestring(time_format)
+            self.assertEqual(       date_from_epoch.__class__.__name__, 'str' )
+            if time_format.__class__.__name__ == 'struct_time':
+               self.assertEqual( test_data_float[epoch_time], date_from_epoch )
+            else:
+               self.assertEqual( test_data_float[epoch_time], date_from_epoch )
 
-         self.assertEqual( test_data_float[epoch_time], date_from_epoch )
-         self.assertEqual( test_data_float[epoch_time], date_from_struct_time )
-
-      for epoch_time in sorted( test_data_str ):
-         struct_time_obj = time.gmtime(float(epoch_time))
-         self.assertEqual(      epoch_time.__class__.__name__, 'str'         )
-         self.assertEqual( struct_time_obj.__class__.__name__, 'struct_time' )
-
-         date_from_epoch       = self.te.date_to_datestring(epoch_time)
-         date_from_struct_time = self.te.date_to_datestring(struct_time_obj)
-
-         self.assertEqual(       date_from_epoch.__class__.__name__, 'str' )
-         self.assertEqual( date_from_struct_time.__class__.__name__, 'str' )
-
-         self.assertEqual( test_data_str[epoch_time], date_from_epoch )
-         self.assertEqual( test_data_str[epoch_time], date_from_struct_time )
-
-
-
-
-
-
-#generate_backup_times
-
+      self.assertTrue( tested_with_time_int         )
+      self.assertTrue( tested_with_time_float       )
+      self.assertTrue( tested_with_time_struct_time )
 
 
    def tearDown(self):
@@ -1343,3 +1722,62 @@ suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Test_yyy))
 
 
 unittest.TextTestRunner(verbosity=2).run(suite)
+
+
+
+
+
+
+#      tested_with_time_int         = False
+#      tested_with_time_float       = False
+#      tested_with_time_struct_time = False
+#
+#            if time_format.__class__.__name__ == 'int':
+#               tested_with_time_int = True
+#            if time_format.__class__.__name__ == 'float':
+#               tested_with_time_float = True
+#            if time_format.__class__.__name__ == 'struct_time':
+#               tested_with_time_struct_time = True
+#
+#      self.assertTrue( tested_with_time_int         )
+#      self.assertTrue( tested_with_time_float       )
+#      self.assertTrue( tested_with_time_struct_time )
+
+
+
+
+
+
+#      tested_with_time_int_1         = False
+#      tested_with_time_float_1       = False
+#      tested_with_time_struct_time_1 = False
+#
+#      tested_with_time_int_2         = False
+#      tested_with_time_float_2       = False
+#      tested_with_time_struct_time_2 = False
+#
+#
+#                  if time_format_1.__class__.__name__ == 'int':
+#                     tested_with_time_int_1 = True
+#                  if time_format_1.__class__.__name__ == 'float':
+#                     tested_with_time_float_1 = True
+#                  if time_format_1.__class__.__name__ == 'struct_time':
+#                     tested_with_time_struct_time_1 = True
+#
+#                  if time_format_2.__class__.__name__ == 'int':
+#                     tested_with_time_int_2 = True
+#                  if time_format_2.__class__.__name__ == 'float':
+#                     tested_with_time_float_2 = True
+#                  if time_format_2.__class__.__name__ == 'struct_time':
+#                     tested_with_time_struct_time_2 = True
+#
+#
+#      self.assertTrue( tested_with_time_int_1         )
+#      self.assertTrue( tested_with_time_float_1       )
+#      self.assertTrue( tested_with_time_struct_time_1 )
+#
+#      self.assertTrue( tested_with_time_int_2         )
+#      self.assertTrue( tested_with_time_float_2       )
+#      self.assertTrue( tested_with_time_struct_time_2 )
+
+

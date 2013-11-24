@@ -365,11 +365,12 @@ class Back_Up():
 
 
    def generate_backup_times(self, start_time, frequency, frequency_unit, backup_type_is_full=True):
-      """First argument:  Either a struct_time object or epoch seconds
-         Second argument: Positive integer representing the number of days between backups
-         Third argument:  True for FULL backup
-                          False for incremental backup
-                          defaults to True (FULL)
+      """First  Argument:  Either a struct_time object or epoch seconds
+         Second Argument:  Positive integer representing the number of time units (days, months, quarters) between backups
+         Third  Argument:  Time unit for the previous argument (days, months, quarters)
+         Forth  Argument:  True for FULL backup
+                           False for incremental backup
+                           defaults to True (FULL)
 
          This populates the 'self.backup_times' dictionary with the backup times
          where the key is the backup time in epoch seconds and the value is
@@ -774,7 +775,9 @@ def UniversalDiff(obj_1, obj_2):
             if not UniversalDiff(all_files_1[ii_00], all_files_2[ii_00]):
                return( False )
    else:
-      print "Inputs are expected to be two files, two directories or two links"
+      print "\n\n  Thing_1 / Thing_2   '%s'  /  '%s'\n\n" % (type(obj_1), type(obj_2) )
+
+      print "The two inputs are expected to be a pair of existing files, directories or links"
       return( False )
 
    return( True )

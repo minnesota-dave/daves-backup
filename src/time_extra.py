@@ -209,7 +209,15 @@ class time_extra():
 
 
    def normalize_date_format(self, date_time_in, date_time_reference):
-      """TBD"""
+      """If date_time_reference is either type float or type int,
+      date_time_in is converted to float.  Otherwise it is converted
+      to type struct_time."""
+
+      date_type_out = None
+      if date_time_reference.__class__.__name__  ==  'struct_time':
+         date_type_out = date_time_reference.__class__.__name__
+      else:
+         date_type_out = 'float'
 
       day_input_format = 'struct_time'
       if date_time_in.__class__.__name__  !=  'struct_time':
@@ -222,11 +230,14 @@ class time_extra():
 
       formatted_date = None
       if day_input_format  ==  day_ref_format:
-         formatted_date = date_time_in
+         if date_type_out == 'float':
+            formatted_date = float(date_time_in)
+         else:
+            formatted_date = date_time_in
       elif day_ref_format  ==  'struct_time':
          formatted_date = time.gmtime(date_time_in)
       else:
-         formatted_date = calendar.timegm(date_time_in)
+         formatted_date = float(calendar.timegm(date_time_in))
 
       return( formatted_date )
 
@@ -235,6 +246,8 @@ class time_extra():
       """This only adjusts the time_of_day of date_time_in.  It does NOT
       change its format.  If it comes in as epoch, it goes out, time
       adjusted, as epoch."""
+
+#      print "\n     local_1  /  local_2   '%s'  /  '%s'\n" % ( type(date_time_in), type(date_time_reference) )
 
       first_epoch_of_day     = self.truncate_any_time_to_first_epoch_of_day(date_time_in)
       first_epoch_of_day_ref = self.truncate_any_time_to_first_epoch_of_day(date_time_reference)
@@ -250,6 +263,8 @@ class time_extra():
          new_day_epoch_00 = self.truncate_any_time_to_last_epoch_of_day( first_epoch_of_day )
 
       new_day_epoch = self.normalize_date_format(new_day_epoch_00, date_time_in)
+
+#      print "\n     output type     '%s'\n" % ( type(new_day_epoch) )
 
       return( new_day_epoch )
 
@@ -282,23 +297,25 @@ class time_extra():
       that day.  If the argument given is epoch seconds, then an epoch seconds
       is returned where the time of day is the same as the incoming argument."""
 
+#      print "\n         Arg_1  /  Arg_2   '%s'  /  '%s'\n" % ( type(date_time), type(num_months) )
 
-      num_years            =  num_months / 12
-      if ( num_months < 0 ):
-         num_years += 1
-         if  (abs(num_months) % 12  ==  0):
-            num_years -= 1
-      num_months_remainder = abs(num_months) % 12
+      numm_years = None
       if num_months < 0:
-         num_months_remainder *= -1
+         numm_years = int( ( num_months - 1 ) / 12 ) + 1
+      else:
+         numm_years = int( num_months / 12 )
+
+      numm_months_remainder = abs(num_months) % 12
+      if num_months < 0:
+         numm_months_remainder *= -1
 
       day_xx = date_time
       if day_xx.__class__.__name__  !=  'struct_time':
          day_xx = time.gmtime(date_time)
 
-      month_start  = time.strftime("%m", day_xx)
-      dom_start    = time.strftime("%d", day_xx)
-      year_start   = time.strftime("%Y", day_xx)
+      month_start = time.strftime("%m", day_xx)
+      dom_start   = time.strftime("%d", day_xx)
+      year_start  = time.strftime("%Y", day_xx)
 
 
       start_day_is_last_day_of_month = False
@@ -306,9 +323,9 @@ class time_extra():
          start_day_is_last_day_of_month = True
 
 
-      dom_end    = int(dom_start)
-      year_end   = int(year_start) + num_years
-      month_end  = int(month_start) + num_months_remainder
+      dom_end   = int(dom_start)
+      year_end  = int(year_start) + int(numm_years)
+      month_end = int(month_start) + int(numm_months_remainder)
       if month_end > 12:
          year_end += 1
          month_end -= 12
@@ -335,6 +352,7 @@ class time_extra():
       new_data_time_final_00 = self.set_date_timeofday_to_reference(start_of_day_end_01, date_time)
       new_data_time_final = self.normalize_date_format(new_data_time_final_00, date_time)
 
+#      print "\n  Thing_1  /  Thing_2  /  Thing_3  /  Thing_4   '%s'  /  '%s'  /  '%s'  /  '%s'\n" % ( type(date_time), type(start_of_day_end_01), type(new_data_time_final_00), type(new_data_time_final) )
 
       return( new_data_time_final )
 
@@ -422,9 +440,13 @@ class time_extra():
       """Accepts either a struct_time object or epoch seconds.  It returns
       the date as an integer epoch time."""
 
-      epoch_out = date_time
+      epoch_out = None
       if date_time.__class__.__name__  ==  'struct_time':
          epoch_out = calendar.timegm(date_time)
+      else:
+         epoch_out = int(date_time)
+
+#      print "\n     Thing_1  /  Thing_2      '%s'  /  '%s'\n" % ( type(date_time), type(epoch_out) )
 
       return( epoch_out )
 

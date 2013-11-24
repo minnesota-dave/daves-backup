@@ -116,55 +116,55 @@ else:
 
 def main():
 
-   epoch_time_start = time.gmtime()
+   struct_time_start = time.gmtime()
 
-   backup_obj = backup_support.Back_Up(epoch_time_start)
-   backup_obj.set_backup_type(True)
-   backup_obj.set_backup_status()
-
-
+#Origgg   backup_obj = backup_support.Back_Up(struct_time_start)
+#Origgg   backup_obj.set_backup_type(True)
+#Origgg   backup_obj.set_backup_status()
 
 
-   ( do_backup_now, backup_type, backup_set_epoch, backup_epoch, backup_set_does_exist ) = backup_obj.is_backup_scheduled_now()
-#   print "\nTTTYYYPPPEEE    '%s'    '%s'    '%s'\n" %  ( do_backup_now, backup_epoch, backup_type )
 
-   create_new_backup_set = False
-   if args.full: # Create new backup set
-      # Create new 'FULL'
-      create_new_backup_set = True
-      tttttttt = backup_support.BackUp_Set(epoch_time_start, create_new_backup_set)
 
-      print "TTTTTTTTTTTT   %s" % epoch_time_start
-   elif args.incremental: # Create new backup set
-      if backup_set_does_exist:
-         # Create new 'incremental' from latest backup set
-         get_existing_backup_set = backup_support.BackUp_Set(backup_set_epoch, create_new_backup_set)
-      else: # An incremental cannot be done since no backup sets exist.  A full backup will be done instead.
-         # Create new 'FULL'
-         create_new_backup_set = True
-         tttttttt = backup_support.BackUp_Set(epoch_time_start, create_new_backup_set)
-
-      print "TTTTTTTTTTTT   %s" % epoch_time_start
-   elif do_backup_now:
-      if backup_type  ==  'FULL': # Create new backup set
-         if backup_set_epoch  !=  backup_epoch:
-            print "ERROR:  At FULL backups, backup_set_epoch and backup_epoch should be the same epoch  '%s' / '%s'" % ( backup_set_epoch, backup_epoch )
-
-         # Create new 'FULL'
-         create_new_backup_set = True
-         tttttttt = backup_support.BackUp_Set(backup_set_epoch, create_new_backup_set)
-
-      else: # backup is incremental
-         if backup_set_does_exist:
-            # Create new 'incremental' from latest backup set
-            get_existing_backup_set = backup_support.BackUp_Set(backup_set_epoch, create_new_backup_set)
-         else: # An incremental cannot be done since no backup sets exist.  A full backup will be done instead.
-            # Create new 'FULL'
-            create_new_backup_set = True
-            tttttttt = backup_support.BackUp_Set(backup_set_epoch, create_new_backup_set)
-   else:
-      print "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
-      tttttttt = backup_support.BackUp_Set(1381392600, False)
+#Origgg   ( do_backup_now, backup_type, backup_set_epoch, backup_epoch, backup_set_does_exist ) = backup_obj.is_backup_scheduled_now()
+#Origgg#   print "\nTTTYYYPPPEEE    '%s'    '%s'    '%s'\n" %  ( do_backup_now, backup_epoch, backup_type )
+#Origgg
+#Origgg   create_new_backup_set = False
+#Origgg   if args.full: # Create new backup set
+#Origgg      # Create new 'FULL'
+#Origgg      create_new_backup_set = True
+#Origgg      tttttttt = backup_support.BackUp_Set(struct_time_start, create_new_backup_set)
+#Origgg
+#Origgg      print "TTTTTTTTTTTT   %s" % struct_time_start
+#Origgg   elif args.incremental: # Create new backup set
+#Origgg      if backup_set_does_exist:
+#Origgg         # Create new 'incremental' from latest backup set
+#Origgg         get_existing_backup_set = backup_support.BackUp_Set(backup_set_epoch, create_new_backup_set)
+#Origgg      else: # An incremental cannot be done since no backup sets exist.  A full backup will be done instead.
+#Origgg         # Create new 'FULL'
+#Origgg         create_new_backup_set = True
+#Origgg         tttttttt = backup_support.BackUp_Set(struct_time_start, create_new_backup_set)
+#Origgg
+#Origgg      print "TTTTTTTTTTTT   %s" % struct_time_start
+#Origgg   elif do_backup_now:
+#Origgg      if backup_type  ==  'FULL': # Create new backup set
+#Origgg         if backup_set_epoch  !=  backup_epoch:
+#Origgg            print "ERROR:  At FULL backups, backup_set_epoch and backup_epoch should be the same epoch  '%s' / '%s'" % ( backup_set_epoch, backup_epoch )
+#Origgg
+#Origgg         # Create new 'FULL'
+#Origgg         create_new_backup_set = True
+#Origgg         tttttttt = backup_support.BackUp_Set(backup_set_epoch, create_new_backup_set)
+#Origgg
+#Origgg      else: # backup is incremental
+#Origgg         if backup_set_does_exist:
+#Origgg            # Create new 'incremental' from latest backup set
+#Origgg            get_existing_backup_set = backup_support.BackUp_Set(backup_set_epoch, create_new_backup_set)
+#Origgg         else: # An incremental cannot be done since no backup sets exist.  A full backup will be done instead.
+#Origgg            # Create new 'FULL'
+#Origgg            create_new_backup_set = True
+#Origgg            tttttttt = backup_support.BackUp_Set(backup_set_epoch, create_new_backup_set)
+#   else:
+#      print "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR"
+#      tttttttt = backup_support.BackUp_Set(1381392600, False)
 
 # Questions
 #   1) Are there backups before this?
@@ -253,26 +253,26 @@ def main():
    ########################                            #######################
    ###########################################################################
    ###########################################################################
-   sha1_codes = {}
-   tar_file_basename = backup_obj.get_dir_name() + '.tar.gz'
-   tmp_tar_file_basename = '/tmp/' + tar_file_basename
-   backup_is_atomic = False
-   for ii_001 in range(0,5): # Try for several iterations to increase chances of achieving an atomic backup.
-                             # An atomic backup will only fail if one or more files are changing during the
-                             # tar operation.  If both consecutive tar files are recursively identical, then
-                             # the backup is atomic.
-      for tar_file in [tar_file_basename, tmp_tar_file_basename]:
-         #ts.create_gziped_tar_file( tar_file, backup_conf.config['files_dirs'], te.date_to_epoch(time.gmtime()) )
-         if not ts.create_gziped_tar_file( tar_file, backup_conf.config['files_dirs'], None ):
-            sys.exit()
-
-      if backup_support.UniversalDiff(tar_file_basename, tmp_tar_file_basename):
-         backup_is_atomic = True
-         sha1_codes[tar_file_basename] = es.calc_sha1_for_file( tar_file_basename )
-         break
-
-   if not backup_is_atomic:
-      logging.warning("Backup performed, but it is not atomic.  Some files were being modified while the backup was taking place.")
+#Origgg   sha1_codes = {}
+#Origgg   tar_file_basename = backup_obj.get_dir_name() + '.tar.gz'
+#Origgg   tmp_tar_file_basename = '/tmp/' + tar_file_basename
+#Origgg   backup_is_atomic = False
+#Origgg   for ii_001 in range(0,5): # Try for several iterations to increase chances of achieving an atomic backup.
+#Origgg                             # An atomic backup will only fail if one or more files are changing during the
+#Origgg                             # tar operation.  If both consecutive tar files are recursively identical, then
+#Origgg                             # the backup is atomic.
+#Origgg      for tar_file in [tar_file_basename, tmp_tar_file_basename]:
+#Origgg         #ts.create_gziped_tar_file( tar_file, backup_conf.config['files_dirs'], te.date_to_epoch(time.gmtime()) )
+#Origgg         if not ts.create_gziped_tar_file( tar_file, backup_conf.config['files_dirs'], None ):
+#Origgg            sys.exit()
+#Origgg
+#Origgg      if backup_support.UniversalDiff(tar_file_basename, tmp_tar_file_basename):
+#Origgg         backup_is_atomic = True
+#Origgg         sha1_codes[tar_file_basename] = es.calc_sha1_for_file( tar_file_basename )
+#Origgg         break
+#Origgg
+#Origgg   if not backup_is_atomic:
+#Origgg      logging.warning("Backup performed, but it is not atomic.  Some files were being modified while the backup was taking place.")
 
 
 
@@ -284,9 +284,9 @@ def main():
    #######################                             #######################
    ###########################################################################
    ###########################################################################
-   tar_file_encrypted = tar_file_basename +'.gpg'
-   es.gpg_encrypt_file(tar_file_basename, tar_file_encrypted, 'david.mcallister@asicanalytic.com', '/home/david/.gnupg')
-   sha1_codes[tar_file_encrypted] = es.calc_sha1_for_file( tar_file_encrypted )
+#Origgg   tar_file_encrypted = tar_file_basename +'.gpg'
+#Origgg   es.gpg_encrypt_file(tar_file_basename, tar_file_encrypted, 'david.mcallister@asicanalytic.com', '/home/david/.gnupg')
+#Origgg   sha1_codes[tar_file_encrypted] = es.calc_sha1_for_file( tar_file_encrypted )
 
 
 
@@ -307,14 +307,14 @@ def main():
 
 
 
-   config_yaml = backup_obj.get_dir_name() + '.yaml'
-   fh_config_file = open(config_yaml,'w')
-   yaml_all_00 = yaml.dump(backup_conf.config,  fh_config_file,  line_break=True, default_flow_style=False, indent = 8)
-   fh_config_file.close()
-
-   fh_yaml_in = open(config_yaml, 'r')
-   whatever = yaml.safe_load(fh_yaml_in)
-   fh_yaml_in.close()
+#Origgg   config_yaml = backup_obj.get_dir_name() + '.yaml'
+#Origgg   fh_config_file = open(config_yaml,'w')
+#Origgg   yaml_all_00 = yaml.dump(backup_conf.config,  fh_config_file,  line_break=True, default_flow_style=False, indent = 8)
+#Origgg   fh_config_file.close()
+#Origgg
+#Origgg   fh_yaml_in = open(config_yaml, 'r')
+#Origgg   whatever = yaml.safe_load(fh_yaml_in)
+#Origgg   fh_yaml_in.close()
 
 
 
@@ -326,19 +326,19 @@ def main():
    ##########################                        #########################
    ###########################################################################
    ###########################################################################
-   all_backup_dirs = [ backup_conf.config['backup_location_reference'] ] + backup_conf.config['backup_location_others']
-   for backup_dir in all_backup_dirs:
-      backup_dir_full = backup_dir + '/' + backup_obj.get_dir_name()
-      if os.path.exists(backup_dir_full):
-         logging.error("Backup directory already exists  '%s'" % (backup_dir_full))
-
-      sub_dir = backup_dir_full + '/' + 'backup'
-      if not os.path.exists(sub_dir):
-         os.makedirs(sub_dir)
-      tar_file_destination = sub_dir + '/' + tar_file_encrypted
-      shutil.copyfile(tar_file_encrypted, tar_file_destination)
-      if not filecmp.cmp(tar_file_encrypted, tar_file_destination):
-         logging.warning("Tar file not copied successfully  '%s'" % tar_file_destination)
+#Origgg   all_backup_dirs = [ backup_conf.config['backup_location_reference'] ] + backup_conf.config['backup_location_others']
+#Origgg   for backup_dir in all_backup_dirs:
+#Origgg      backup_dir_full = backup_dir + '/' + backup_obj.get_dir_name()
+#Origgg      if os.path.exists(backup_dir_full):
+#Origgg         logging.error("Backup directory already exists  '%s'" % (backup_dir_full))
+#Origgg
+#Origgg      sub_dir = backup_dir_full + '/' + 'backup'
+#Origgg      if not os.path.exists(sub_dir):
+#Origgg         os.makedirs(sub_dir)
+#Origgg      tar_file_destination = sub_dir + '/' + tar_file_encrypted
+#Origgg      shutil.copyfile(tar_file_encrypted, tar_file_destination)
+#Origgg      if not filecmp.cmp(tar_file_encrypted, tar_file_destination):
+#Origgg         logging.warning("Tar file not copied successfully  '%s'" % tar_file_destination)
 
 
 
