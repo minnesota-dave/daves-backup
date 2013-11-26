@@ -9,7 +9,7 @@ env:
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
    -  "pip install -r requirements.txt --use-mirrors"
-   -  "pip install calendar"
+   -  "pip install sys"
    -  "pip install datetime"
    -  "pip install filecmp"
    -  "pip install fnmatch"
@@ -21,10 +21,10 @@ install:
    -  "pip install os"
    -  "pip install pprint"
    -  "pip install re"
-   -  "pip install sys"
    -  "pip install tarfile"
    -  "pip install time"
    -  "pip install unittest"
+   -  "pip install calendar"
 
 before_script:
    -  echo "HELP ME SOMEONE PLEASE   ${DUMMY_VAR_01}     ${DUMMY_VAR_02}"
