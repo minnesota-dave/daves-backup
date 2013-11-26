@@ -1,13 +1,32 @@
 language: python
 python:
   - "2.7"
+
+env:
+  - DUMMY_VAR_01="JUNK"
+  - DUMMY_VAR_02="EVEN_MORE_JUNK"
+
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-install: pip install -r requirements.txt --use-mirrors
+install:
+   -  "pip install ."
+   -  "pip install -r requirements.txt --use-mirrors"
+
+before_script:
+   -  echo "HELP ME SOMEONE PLEASE   ${DUMMY_VAR_01}     ${DUMMY_VAR_02}"
 
 # command to run tests, e.g. python setup.py test
 
 script:
-   -     cd src
-   -     rm -rf local_backup/Wed_Oct_30_2013_GMT___Full   Dropbox/backups*/Wed_Oct_30_2013_GMT___Full
-   -     python ./unit_test.py  -r backup_report.py
-   -     cd ..
+   -  cd src
+   -  rm -rf local_backup/Wed_Oct_30_2013_GMT___Full   Dropbox/backups*/Wed_Oct_30_2013_GMT___Full
+   -  python ./unit_test.py  -r backup_report.py
+   -  cd ..
+
+notifications:
+  irc:
+    channels: "irc.freddie.org#whatever"
+    on_success: change
+    on_failure: change
+    use_notice: change
+  email: "perldave@gmail.com"
+
