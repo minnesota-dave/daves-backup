@@ -1,1 +1,1 @@
-gnupg
+python-gnupg
