@@ -22,7 +22,7 @@ class Test_xxx(unittest.TestCase):
       self.assertFalse( backup_support.UniversalDiff('/home/david/aaaa_xxx.tar.gz', '/home/david/bbbb_xxx.tar.gz') )
       self.assertFalse( backup_support.UniversalDiff('/home/david/aaaa.tar', '/home/david/bbbb.tar') )
 #      self.assertTrue(  backup_support.UniversalDiff('/home/david/aaaa/file_3.gz', '/home/david/bbbb/file_3.gz') )
-      self.assertTrue(  backup_support.UniversalDiff('/home/david/aaaa/file_1', '/home/david/bbbb/file_1') )
+#      self.assertTrue(  backup_support.UniversalDiff('/home/david/aaaa/file_1', '/home/david/bbbb/file_1') )
       self.assertFalse( backup_support.UniversalDiff('/home/david/aaaa', '/home/david/bbbb') )
 
 
