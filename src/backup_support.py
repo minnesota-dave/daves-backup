@@ -717,6 +717,7 @@ def UniversalDiff(obj_1, obj_2):
 
    if (xxxx_1 != xxxx_2)  or  (yyyy_1 != yyyy_2):
       return(False)
+      print "MARKER_000   '%s'   '%s'       /     '%s'   '%s'\n" %  ( xxxx_1, xxxx_2, yyyy_1, yyyy_2 )
 
 
    if os.path.islink(obj_1)  and  (not os.path.islink(obj_2) ):
