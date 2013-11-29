@@ -717,8 +717,6 @@ def UniversalDiff(obj_1, obj_2):
 
    if (xxxx_1 != xxxx_2)  or  (yyyy_1 != yyyy_2):
       return(False)
-      print "MARKER_000   '%s'   '%s'       /     '%s'   '%s'\n" %  ( xxxx_1, xxxx_2, yyyy_1, yyyy_2 )
-
 
    if os.path.islink(obj_1)  and  (not os.path.islink(obj_2) ):
          return( False )
@@ -777,6 +775,7 @@ def UniversalDiff(obj_1, obj_2):
                return( False )
    else:
       print "\n\n  Thing_1 / Thing_2   '%s'  /  '%s'\n\n" % (type(obj_1), type(obj_2) )
+      print "MARKER_000   '%s'   '%s'\n" %  ( obj_1, obj_2 )
 
       print "The two inputs are expected to be a pair of existing files, directories or links"
       return( False )
