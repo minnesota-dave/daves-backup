@@ -8,4 +8,4 @@ program = {
 }
 
 
-config_file = ('./backup_reports.py',)
+config_file = ('/home/david/backup_reports.py',)
