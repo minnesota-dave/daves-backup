@@ -774,7 +774,7 @@ def UniversalDiff(obj_1, obj_2):
             if not UniversalDiff(all_files_1[ii_00], all_files_2[ii_00]):
                return( False )
    else:
-#      print "Current directory is '%s'" % os.getcwd()
+      print "\n\nCurrent directory is '%s'" % os.getcwd()
 #      if os.path.exists(obj_1):
 #         print "File '%s' does exist" % (obj_1)
 #      else:
@@ -783,8 +783,8 @@ def UniversalDiff(obj_1, obj_2):
 #         print "File '%s' does exist" % (obj_2)
 #      else:
 #         print "File '%s' does NOT exist" % (obj_2)
-#      print "\n\n  Thing_1 / Thing_2   '%s'  /  '%s'\n\n" % (type(obj_1), type(obj_2) )
-#      print "MARKER_000   '%s'   '%s'\n" %  ( obj_1, obj_2 )
+      print "\n\n  Thing_1 / Thing_2   '%s'  /  '%s'\n\n" % (type(obj_1), type(obj_2) )
+      print "MARKER_000   '%s'   '%s'\n" %  ( obj_1, obj_2 )
 
       print "The two inputs are expected to be a pair of existing files, directories or links"
       return( False )
