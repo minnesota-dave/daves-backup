@@ -724,6 +724,7 @@ def UniversalDiff(obj_1, obj_2):
          return( False )
 
 
+#   print "\n\nCurrent directory is '%s'" % os.getcwd()
    if os.path.islink(obj_1)  and  os.path.islink(obj_2):
       if os.path.abspath(obj_1)  !=  os.path.abspath(obj_2):
          return( False )
@@ -774,7 +775,6 @@ def UniversalDiff(obj_1, obj_2):
             if not UniversalDiff(all_files_1[ii_00], all_files_2[ii_00]):
                return( False )
    else:
-      print "\n\nCurrent directory is '%s'" % os.getcwd()
 #      if os.path.exists(obj_1):
 #         print "File '%s' does exist" % (obj_1)
 #      else:
