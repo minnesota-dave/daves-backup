@@ -4,7 +4,7 @@ python:
 
 env:
   - DUMMY_VAR_01="JUNK"
-  - DUMMY_VAR_02="EVEN_MORE_JUNK"
+#  - DUMMY_VAR_02="EVEN_MORE_JUNK"
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 install:
