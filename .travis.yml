@@ -3,7 +3,7 @@ python:
   - "2.7"
 
 env:
-  - DUMMY_VAR_01="JUNK"
+#  - DUMMY_VAR_01="JUNK"
   - DUMMY_VAR_02="EVEN_MORE_JUNK"
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
@@ -12,7 +12,7 @@ install:
 
 before_script:
    -  echo "HELP ME SOMEONE PLEASE"
-   -  echo $DUMMY_VAR_01
+#   -  echo $DUMMY_VAR_01
    -  echo $DUMMY_VAR_02
    -  echo "DONE WITH HELP ME SOMEONE PLEASE"
 
