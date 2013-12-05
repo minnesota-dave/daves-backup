@@ -11,8 +11,9 @@ install:
    -  "pip install -r requirements.txt"
 
 before_script:
-   -  echo "HELP ME SOMEONE PLEASE   $DUMMY_VAR_01"
-#   -  echo "HELP ME SOMEONE PLEASE   $DUMMY_VAR_02"
+   -  echo "HELP ME SOMEONE PLEASE"
+   -  echo $DUMMY_VAR_01
+   -  echo "DONE WITH HELP ME SOMEONE PLEASE"
 
 # command to run tests, e.g. python setup.py test
 
